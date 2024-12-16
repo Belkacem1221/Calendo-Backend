@@ -1,37 +1,46 @@
-// server.js
-
-// Importing required modules
+// Import required packages
 const express = require('express');
 const mongoose = require('mongoose');
-const cors = require('cors');
+const cors = require('cors'); // Cross-Origin Resource Sharing for API access
 const dotenv = require('dotenv');
+const bodyParser = require('body-parser'); // For parsing request bodies
+const userRoutes = require('./src/routes/userRoutes'); // Import user routes
 
-// Import routes
-//const userRoutes = require('./routes/userRoutes');
-
-// Initialize dotenv to use environment variables
 dotenv.config();
 
-// Create an instance of the Express app
+// Create an Express app
 const app = express();
 
-// Middleware setup
-app.use(cors()); // Enable Cross-Origin Resource Sharing
-app.use(express.json()); // Parse incoming JSON requests
+// Middleware
+app.use(cors()); // Enable CORS
+app.use(bodyParser.json()); // To parse JSON request bodies
 
-// Use routes
-//app.use('/api/users', userRoutes);
+// Database connection (MongoDB Atlas)
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGO_URI, {
+      dbName: 'Calendodb'
+    }); // Connect to MongoDB
+    console.log('MongoDB connected successfully');
+  } catch (error) {
+    console.error('MongoDB connection error:', error);
+    process.exit(1); // Exit the process with failure
+  }
+};
 
-// Database connection
-mongoose.connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
-.then(() => console.log('MongoDB connected!'))
-.catch((err) => console.error('MongoDB connection error:', err));
+// Connect to the database
+connectDB();
 
-// Start the server
+// Routes
+app.use('/api/users', userRoutes); // Use the user-related routes
+
+// Test Route
+app.get('/', (req, res) => {
+  res.send('Server is running!');
+});
+
+// Set up the server to listen on a specific port
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
