@@ -3,8 +3,7 @@ const authenticateAdmin = (req, res, next) => {
     if (userRole !== 'admin') {
       return res.status(403).json({ message: 'Access denied, admin only' });
     }
-    next();
-  };
-  
-  router.get('/', authenticateToken, authenticateAdmin, UserController.getAllUsers);
-  
+    next(); // Proceed to the next middleware/handler
+};
+
+module.exports = authenticateAdmin;
