@@ -1,44 +1,46 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const cors = require('cors'); // Cross-Origin Resource Sharing for API access
+const cors = require('cors');
 const dotenv = require('dotenv');
-const bodyParser = require('body-parser'); // For parsing request bodies
-const userRoutes = require('./src/routes/userRoutes'); // Import user routes
+const userRoutes = require('./src/routes/userRoutes');
+const authRoutes = require('./src/routes/authRoutes'); 
 
 dotenv.config();
 
-// Create an Express app
 const app = express();
 
 // Middleware
-app.use(cors()); // Enable CORS
-app.use(bodyParser.json()); // To parse JSON request bodies
+app.use(cors());
+app.use(express.json()); // Built-in JSON parser
 
-// Database connection (MongoDB Atlas)
+// Database connection
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI, {
-      dbName: 'Calendodb'
-    }); // Connect to MongoDB
+      dbName: 'Calendodb',
+    });
     console.log('MongoDB connected successfully');
   } catch (error) {
     console.error('MongoDB connection error:', error);
-    process.exit(1); // Exit the process with failure
+    process.exit(1);
   }
 };
 
-// Connect to the database
 connectDB();
 
 // Routes
-app.use('/api/users', userRoutes); // Use the user-related routes
+app.use('/api/users', userRoutes);  // User routes
+app.use('/api/auth', authRoutes);  // Auth routes
 
-// Test Route
 app.get('/', (req, res) => {
   res.send('Server is running!');
 });
 
-// Set up the server to listen on a specific port
+// Handle unhandled routes
+app.use((req, res) => {
+  res.status(404).json({ message: 'Route not found' });
+});
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

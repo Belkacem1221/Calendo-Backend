@@ -25,25 +25,21 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Pre-save middleware to hash the password
+// Hash password before saving user document
 userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) {
-    return next(); // If the password hasn't changed, skip hashing
-  }
-
-  try {
-    const salt = await bcrypt.genSalt(10); // Generate salt
-    this.password = await bcrypt.hash(this.password, salt); // Hash password
-    next();
-  } catch (error) {
-    next(error);
+  if (this.isModified('password') || this.isNew) {
+    try {
+      // Generate a salt and hash the password
+      const salt = await bcrypt.genSalt(10); // 10 salt rounds
+      this.password = await bcrypt.hash(this.password, salt);
+      next(); // Proceed with saving the user
+    } catch (err) {
+      next(err); // Handle errors
+    }
+  } else {
+    next(); // Proceed if password is not modified
   }
 });
-
-// Method to compare passwords during login
-userSchema.methods.comparePassword = async function (candidatePassword) {
-  return bcrypt.compare(candidatePassword, this.password);
-};
 
 // Create the user model
 const User = mongoose.model('User', userSchema);
