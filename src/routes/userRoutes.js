@@ -1,11 +1,18 @@
 const express = require('express');
 const router = express.Router();
-const UserController = require('../controllers/userControllers'); // Assuming the controller handles user logic
+const UserController = require('../controllers/userControllers');
+const authenticateToken = require('../middlewares/authMiddleware');
+const authenticateAdmin = require('../middlewares/authenticateAdmin'); 
 
-// Example route for creating a new user
-router.post('/register', UserController.createUser); // Handles creating new users
+// Public routes
+router.post('/register', UserController.createUser);
 
-// Example route for getting all users
-router.get('/', UserController.getAllUsers); // Handles fetching all users
+// Protected routes
+router.get('/', authenticateToken, authenticateAdmin, UserController.getAllUsers); // Admin can access all users
+router.get('/:id', authenticateToken, UserController.getUserById); // Get user by ID
+router.put('/:id', authenticateToken, UserController.updateUser); // Update user
+router.delete('/:id', authenticateToken, authenticateAdmin, UserController.deleteUser); // Admin can delete user
+router.patch('/:id/password', authenticateToken, UserController.updatePassword); // Update password
+router.patch('/:id/role', authenticateToken, authenticateAdmin, UserController.changeUserRole); // Admin can change user role
 
 module.exports = router;
