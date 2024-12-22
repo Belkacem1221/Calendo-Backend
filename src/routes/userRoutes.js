@@ -1,12 +1,18 @@
 const express = require('express');
 const router = express.Router();
-const UserController = require('../controllers/userControllers'); // Assuming the controller handles user logic
-const authenticateToken = require('../middlewares/authMiddleware'); // Import the JWT middleware
+const UserController = require('../controllers/userControllers');
+const authenticateToken = require('../middlewares/authMiddleware');
+const authenticateAdmin = require('../middlewares/authenticateAdmin'); 
 
-// Route for creating a new user (public)
-router.post('/register', UserController.createUser); // Handles creating new users
+// Public routes
+router.post('/register', UserController.createUser);
 
-// Route for getting all users (protected) FOR ADMIN
-router.get('/', authenticateToken, UserController.getAllUsers); // Only authenticated users can access this
+// Protected routes
+router.get('/', authenticateToken, authenticateAdmin, UserController.getAllUsers); // Admin can access all users
+router.get('/:id', authenticateToken, UserController.getUserById); // Get user by ID
+router.put('/:id', authenticateToken, UserController.updateUser); // Update user
+router.delete('/:id', authenticateToken, authenticateAdmin, UserController.deleteUser); // Admin can delete user
+router.patch('/:id/password', authenticateToken, UserController.updatePassword); // Update password
+router.patch('/:id/role', authenticateToken, authenticateAdmin, UserController.changeUserRole); // Admin can change user role
 
 module.exports = router;
