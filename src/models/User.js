@@ -25,21 +25,14 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Hash password before saving user document
 userSchema.pre('save', async function (next) {
-  if (this.isModified('password') || this.isNew) {
-    try {
-      // Generate a salt and hash the password
-      const salt = await bcrypt.genSalt(10); // 10 salt rounds
-      this.password = await bcrypt.hash(this.password, salt);
-      next(); // Proceed with saving the user
-    } catch (err) {
-      next(err); // Handle errors
-    }
-  } else {
-    next(); // Proceed if password is not modified
+  if (this.isModified('password')) {
+    const hashedPassword = await bcrypt.hash(this.password, 10);
+    this.password = hashedPassword;
   }
+  next();
 });
+
 
 // Create the user model
 const User = mongoose.model('User', userSchema);

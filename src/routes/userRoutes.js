@@ -4,9 +4,6 @@ const UserController = require('../controllers/userControllers');
 const authenticateToken = require('../middlewares/authMiddleware');
 const authenticateAdmin = require('../middlewares/authenticateAdmin');
 
-// Public routes
-router.post('/register', UserController.createUser);
-
 // Protected routes
 router.get('/', authenticateToken, authenticateAdmin, UserController.getAllUsers); // Admin can access all users
 router.get('/:id', authenticateToken, UserController.getUserById); // Get user by ID
