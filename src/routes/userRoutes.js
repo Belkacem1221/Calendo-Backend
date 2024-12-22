@@ -1,8 +1,8 @@
 const express = require('express');
-const router = express.Router();
+const router = express.Router();  // Initialize the router
 const UserController = require('../controllers/userControllers');
 const authenticateToken = require('../middlewares/authMiddleware');
-const authenticateAdmin = require('../middlewares/authenticateAdmin'); 
+const authenticateAdmin = require('../middlewares/authenticateAdmin');
 
 // Public routes
 router.post('/register', UserController.createUser);
