@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 const bodyParser = require('body-parser'); // For parsing request bodies
 const userRoutes = require('./src/routes/userRoutes'); // Import user routes
 const authRoutes = require('./src/routes/authRoutes'); // Import auth routes
+const teamRoutes = require('./src/routes/teamRoutes');
 
 dotenv.config(); // Load environment variables from .env file
 
@@ -34,6 +35,7 @@ connectDB();
 // Routes
 app.use('/api/users', userRoutes); // Use the user-related routes
 app.use('/api/auth', authRoutes); // Use the authentication routes
+app.use('/api/teams', teamRoutes); // Use the authentication routes
 
 // Test Route
 app.get('/', (req, res) => {
