@@ -1,9 +1,21 @@
 const authenticateAdmin = (req, res, next) => {
-    const userRole = req.user.role; // Assuming role is saved in the JWT payload
-    if (userRole !== 'admin') {
-      return res.status(403).json({ message: 'Access denied, admin only' });
+    try {
+      // Vérifiez que req.user est défini et contient un rôle
+      if (!req.user || !req.user.role) {
+        return res.status(401).json({ message: 'Unauthorized. User information is missing.' });
+      }
+  
+      // Vérifiez si le rôle est 'admin'
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Access denied, admin only.' });
+      }
+  
+      // Passer au middleware ou au contrôleur suivant
+      next();
+    } catch (error) {
+      res.status(500).json({ message: 'Error verifying admin access.', error });
     }
-    next(); // Proceed to the next middleware/handler
-};
-
-module.exports = authenticateAdmin;
+  };
+  
+  module.exports = authenticateAdmin;
+  
