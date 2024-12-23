@@ -1,6 +1,6 @@
 const express = require('express');
 const { createTeam, addMember, removeMember, getTeamDetails } = require('../controllers/teamController');
-const authenticateToken = require('../middlewares/authenticateToken');
+const authenticateToken = require('../middlewares/authMiddleware.js');
 
 const router = express.Router();
 
