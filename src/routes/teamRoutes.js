@@ -1,5 +1,5 @@
 const express = require('express');
-const { createTeam, addMember, removeMember, getTeamDetails } = require('../controllers/teamController');
+const { createTeam, addMember, removeMember, getTeamDetails, changeMemberRole } = require('../controllers/teamController');
 const authenticateToken = require('../middlewares/authMiddleware.js');
 
 const router = express.Router();
@@ -15,5 +15,8 @@ router.delete('/remove-member', authenticateToken, removeMember);
 
 // Obtenir les détails d'une équipe
 router.get('/:teamId', authenticateToken, getTeamDetails);
+
+// Obtenir les détails d'une équipe
+router.patch('/change-role', authenticateToken, changeMemberRole);
 
 module.exports = router;
