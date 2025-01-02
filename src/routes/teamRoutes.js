@@ -1,5 +1,5 @@
 const express = require('express');
-const { createTeam, addMember, removeMember, getTeamDetails, changeMemberRole } = require('../controllers/teamController');
+const { createTeam, addMember, removeMember, getTeamDetails, changeMemberRole, leaveTeam } = require('../controllers/teamController');
 const authenticateToken = require('../middlewares/authMiddleware.js');
 
 const router = express.Router();
@@ -14,9 +14,12 @@ router.post('/add-member', authenticateToken, addMember);
 router.delete('/remove-member', authenticateToken, removeMember);
 
 // Obtenir les détails d'une équipe
-router.get('/:teamId', authenticateToken, getTeamDetails);
+router.get('details/:teamId', authenticateToken, getTeamDetails);
 
-// Obtenir les détails d'une équipe
+// Changez le role d'un member (seulement l'administrateur de l'équipe peut le faire)
 router.patch('/change-role', authenticateToken, changeMemberRole);
+
+// Quittez la team
+router.post('leave/:teamId', authenticateToken, leaveTeam);
 
 module.exports = router;
