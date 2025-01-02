@@ -99,3 +99,30 @@ exports.getTeamDetails = async (req, res) => {
     res.status(500).json({ message: 'Error fetching team details', error });
   }
 };
+
+exports.changeMemberRole = async (req, res) => {
+  const { teamId, userId, newRole } = req.body;
+
+  try {
+    const team = await Team.findById(teamId);
+    if (!team) {
+      return res.status(404).json({ message: 'Team not found' });
+    }
+
+    if (team.admin.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Only the admin can change member roles' });
+    }
+
+    const member = team.members.find(member => member.user.toString() === userId);
+    if (!member) {
+      return res.status(400).json({ message: 'User is not a member of the team' });
+    }
+
+    member.role = newRole;
+    await team.save();
+
+    res.status(200).json({ message: 'Member role updated successfully', team });
+  } catch (error) {
+    res.status(500).json({ message: 'Error changing member role', error });
+  }
+};
