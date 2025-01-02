@@ -126,3 +126,26 @@ exports.changeMemberRole = async (req, res) => {
     res.status(500).json({ message: 'Error changing member role', error });
   }
 };
+
+exports.leaveTeam = async (req, res) => {
+  const { teamId } = req.params;
+
+  try {
+    const team = await Team.findById(teamId);
+    if (!team) {
+      return res.status(404).json({ message: 'Team not found' });
+    }
+
+    const isAdmin = team.admin.toString() === req.user.id;
+    if (isAdmin) {
+      return res.status(400).json({ message: 'Admins must transfer their role before leaving' });
+    }
+
+    team.members = team.members.filter(member => member.user.toString() !== req.user.id);
+    await team.save();
+
+    res.status(200).json({ message: 'Successfully left the team', team });
+  } catch (error) {
+    res.status(500).json({ message: 'Error leaving team', error });
+  }
+};
