@@ -13,8 +13,16 @@ const teamSchema = new mongoose.Schema({
     required: true
   },
   members: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User', // Référence aux utilisateurs membres de l'équipe
+    user: { 
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: 'User', 
+      required: true 
+    },
+    role: { 
+      type: String, 
+      enum: ['admin', 'moderator', 'member'], 
+      default: 'member' 
+    }
   }],
   createdAt: {
     type: Date,
