@@ -41,7 +41,7 @@ exports.addMember = async (req, res) => {
     }
 
     // Vérifiez si l'utilisateur est déjà membre de l'équipe
-    if (team.members.includes(userId)) {
+    if (team.members.some(member => member.user.toString() === userId)) {
       return res.status(400).json({ message: 'User is already a member of the team' });
     }
 
@@ -50,8 +50,8 @@ exports.addMember = async (req, res) => {
       return res.status(403).json({ message: 'Only the team admin can add members' });
     }
 
-    // Ajoutez le membre
-    team.members.push(userId);
+    // Ajoutez le membre (en ajoutant un objet avec la structure attendue: { user, role })
+    team.members.push({ user: userId, role: 'member' });
     await team.save();
 
     res.status(200).json({ message: 'Member added successfully', team });
