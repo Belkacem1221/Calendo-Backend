@@ -136,11 +136,29 @@ exports.leaveTeam = async (req, res) => {
       return res.status(404).json({ message: 'Team not found' });
     }
 
-    const isAdmin = team.admin.toString() === req.user.id;
-    if (isAdmin) {
-      return res.status(400).json({ message: 'Admins must transfer their role before leaving' });
+    // Check if the user is a member of the team
+    const memberIndex = team.members.findIndex(member => member.user.toString() === req.user.id);
+    if (memberIndex === -1) {
+      return res.status(400).json({ message: 'You are not a member of this team' });
     }
 
+    // Check if the user is the admin
+    const isAdmin = team.admin.toString() === req.user.id;
+
+    // If the admin leaves, transfer admin rights to the first member (excluding the leaving admin)
+    if (isAdmin) {
+      if (team.members.length === 1) {
+        // If the admin is the only member, delete the team
+        await Team.findByIdAndDelete(teamId);
+        return res.status(200).json({ message: 'Team deleted as the only admin left' });
+      } else {
+        // Transfer admin rights to the first member
+        const newAdmin = team.members.find((member, index) => index !== memberIndex);
+        team.admin = newAdmin.user;
+      }
+    }
+
+    // Remove the user from the members list
     team.members = team.members.filter(member => member.user.toString() !== req.user.id);
     await team.save();
 
