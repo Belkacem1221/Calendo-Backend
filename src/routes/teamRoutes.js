@@ -14,12 +14,12 @@ router.post('/add-member', authenticateToken, addMember);
 router.delete('/remove-member', authenticateToken, removeMember);
 
 // Obtenir les détails d'une équipe
-router.get('details/:teamId', authenticateToken, getTeamDetails);
+router.get('/details/:teamId', authenticateToken, getTeamDetails);
 
 // Changez le role d'un member (seulement l'administrateur de l'équipe peut le faire)
 router.patch('/change-role', authenticateToken, changeMemberRole);
 
 // Quittez la team
-router.post('leave/:teamId', authenticateToken, leaveTeam);
+router.post('/leave/:teamId', authenticateToken, leaveTeam);
 
 module.exports = router;
