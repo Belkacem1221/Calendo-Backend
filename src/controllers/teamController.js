@@ -11,11 +11,16 @@ exports.createTeam = async (req, res) => {
       return res.status(400).json({ message: 'Team already exists' });
     }
 
+    // Create a new team, add the user as the first member with "admin" role
     const newTeam = new Team({ 
       name, 
       admin: req.user.id,  // L'utilisateur connecté devient l'administrateur
-      members: [req.user.id]  // Ajouter le créateur comme membre
+      members: [{ 
+        user: req.user.id, 
+        role: 'admin'  // Le créateur devient l'administrateur de l'équipe
+      }]
     });
+
     await newTeam.save();
 
     res.status(201).json({ message: 'Team created successfully', team: newTeam });
@@ -23,6 +28,7 @@ exports.createTeam = async (req, res) => {
     res.status(500).json({ message: 'Error creating team', error });
   }
 };
+
 
 // Ajouter un membre à une équipe
 exports.addMember = async (req, res) => {
