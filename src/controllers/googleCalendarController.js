@@ -1,4 +1,4 @@
-const { getCalendarEvents, createCalendarEvent, updateCalendarEvent } = require('../services/googleCalendarService');
+const { getCalendarEvents, createCalendarEvent, updateCalendarEvent, deleteCalendarEvent } = require('../services/googleCalendarService');
 
 /**
  * Handle the request to fetch calendar events.
@@ -66,5 +66,20 @@ exports.updateCalendarEvent = async (req, res) => {
     res.json(updatedEvent);
   } catch (error) {
     res.status(500).json({ error: 'Error updating calendar event', details: error.message });
+  }
+};
+
+/**
+ * Handle the request to delete a calendar event.
+ */
+exports.deleteCalendarEvent = async (req, res) => {
+  const { eventId } = req.params;
+
+  try {
+    await deleteCalendarEvent(req.oauth2Client, eventId); // Using service function for deletion
+    res.status(200).json({ message: 'Event deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting calendar event:', error);
+    res.status(500).json({ error: 'Error deleting calendar event', details: error.message });
   }
 };
