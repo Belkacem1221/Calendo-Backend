@@ -9,6 +9,7 @@ const teamRoutes = require('./src/routes/teamRoutes');
 const notificationRoutes = require('./src/routes/notificationRoutes');
 const eventRoutes = require('./src/routes/eventRoutes');
 const googleAuthRoutes = require('./src/routes/googleAuthRoutes');
+const googleCalendarRoutes = require('./src/routes/googleCalendarRoutes'); // Import Google Calendar routes
 
 dotenv.config(); // Make sure this is the very first line
 
@@ -43,6 +44,7 @@ app.use('/api/teams', teamRoutes); // Use the teams routes
 app.use('/api/notifications', notificationRoutes); // Use the notif routes
 app.use('/api/events', eventRoutes); // Use the notif routes
 app.use('/api/google', googleAuthRoutes);// Google OAuth Routes
+app.use('/api/google/calendar', googleCalendarRoutes);
 
 // Test Route
 app.get('/', (req, res) => {
