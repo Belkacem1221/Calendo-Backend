@@ -1,44 +1,52 @@
+// /middlewares/oauthMiddleware.js
 const { google } = require('googleapis');
-const dotenv = require('dotenv');
-dotenv.config();
+const { OAuth2 } = require('simple-oauth2');
+const { google: googleConfig, apple: appleConfig } = require('../config/oauthConfig');
 
-/**
- * Middleware to set up OAuth2 client for authenticated requests and handle token expiration.
- */
 const oauthMiddleware = async (req, res, next) => {
-  const { access_token, refresh_token } = req.headers; // Tokens passed in headers
+  const { access_token, refresh_token, provider } = req.headers;
 
-  if (!access_token || !refresh_token) {
-    return res.status(400).json({ error: 'Authentication tokens are missing' });
+  if (!access_token || !refresh_token || !provider) {
+    return res.status(400).json({ error: 'Authentication tokens or provider are missing' });
   }
 
-  const oauth2Client = new google.auth.OAuth2(
-    process.env.CLIENT_ID,
-    process.env.CLIENT_SECRET,
-    process.env.REDIRECT_URI
-  );
+  if (provider === 'google') {
+    const oauth2Client = new google.auth.OAuth2(
+      googleConfig.clientId,
+      googleConfig.clientSecret,
+      googleConfig.redirectUri
+    );
 
-  // Set credentials with access and refresh tokens
-  oauth2Client.setCredentials({ access_token, refresh_token });
+    oauth2Client.setCredentials({ access_token, refresh_token });
 
-  try {
-    // Check if the access token is still valid by requesting a new one
-    const tokenInfo = await oauth2Client.getTokenInfo(access_token);
-
-    // If the access token is expired, try to refresh it
-    if (tokenInfo.expiry_date <= Date.now()) {
-      console.log('Access token expired, refreshing...');
-
-      const { tokens } = await oauth2Client.refreshAccessToken();
-      oauth2Client.setCredentials(tokens); // Update with new tokens
+    try {
+      await oauth2Client.getAccessToken();
+      req.oauth2Client = oauth2Client;
+      next();
+    } catch (error) {
+      return res.status(500).json({ error: 'Google authentication failed', details: error.message });
     }
+  } else if (provider === 'apple') {
+    const oauth2 = OAuth2.create({
+      client: {
+        id: appleConfig.clientId,
+        secret: appleConfig.clientSecret,
+      },
+      auth: {
+        tokenHost: 'https://appleid.apple.com',
+        tokenPath: '/auth/token',
+      },
+    });
 
-    // Attach the oauth2Client to the request object
-    req.oauth2Client = oauth2Client;
-    next();
-  } catch (error) {
-    console.error('Error with OAuth2 client:', error);
-    return res.status(500).json({ error: 'Authentication failed', details: error.message });
+    try {
+      const token = await oauth2.accessToken.create({ access_token, refresh_token });
+      req.oauth2Client = token;
+      next();
+    } catch (error) {
+      return res.status(500).json({ error: 'Apple authentication failed', details: error.message });
+    }
+  } else {
+    return res.status(400).json({ error: 'Invalid provider' });
   }
 };
 

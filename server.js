@@ -10,7 +10,7 @@ const notificationRoutes = require('./src/routes/notificationRoutes');
 const eventRoutes = require('./src/routes/eventRoutes');
 const googleAuthRoutes = require('./src/routes/googleAuthRoutes');
 const googleCalendarRoutes = require('./src/routes/googleCalendarRoutes'); // Import Google Calendar routes
-
+const appleCalendarRoutes = require('./src/routes/appleCalendarRoutes')
 dotenv.config(); // Make sure this is the very first line
 
 
@@ -45,6 +45,7 @@ app.use('/api/notifications', notificationRoutes); // Use the notif routes
 app.use('/api/events', eventRoutes); // Use the notif routes
 app.use('/api/google', googleAuthRoutes);// Google OAuth Routes
 app.use('/api/google/calendar', googleCalendarRoutes);
+app.use('/api/apple/calendar', appleCalendarRoutes);
 
 // Test Route
 app.get('/', (req, res) => {
