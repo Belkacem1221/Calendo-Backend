@@ -12,13 +12,12 @@ const getCalendarEvents = async (oauth2Client) => {
   try {
     const events = await calendar.events.list({
       auth: oauth2Client,
-      calendarId: 'primary', // 'primary' refers to the main Google Calendar
+      calendarId: 'primary',
       timeMin: (new Date()).toISOString(), // Only events after the current time
       maxResults: 10, // Get the first 10 events
       singleEvents: true, // Get events that repeat
       orderBy: 'startTime',
     });
-
     return events.data.items;
   } catch (error) {
     console.error('Error fetching calendar events:', error);
@@ -36,10 +35,9 @@ const createCalendarEvent = async (oauth2Client, eventData) => {
   try {
     const event = await calendar.events.insert({
       auth: oauth2Client,
-      calendarId: 'primary', // 'primary' refers to the main Google Calendar
+      calendarId: 'primary',
       resource: eventData,
     });
-
     return event.data;
   } catch (error) {
     console.error('Error creating calendar event:', error);
@@ -47,4 +45,26 @@ const createCalendarEvent = async (oauth2Client, eventData) => {
   }
 };
 
-module.exports = { getCalendarEvents, createCalendarEvent };
+/**
+ * Update an existing event on the user's Google Calendar.
+ * @param {Object} oauth2Client - The authenticated OAuth2 client.
+ * @param {String} eventId - The event ID to update.
+ * @param {Object} updatedEventData - The data to update the event with.
+ * @returns {Promise<Object>} - The updated event.
+ */
+const updateCalendarEvent = async (oauth2Client, eventId, updatedEventData) => {
+  try {
+    const updatedEvent = await calendar.events.update({
+      auth: oauth2Client,
+      calendarId: 'primary',
+      eventId,
+      resource: updatedEventData,
+    });
+    return updatedEvent.data;
+  } catch (error) {
+    console.error('Error updating calendar event:', error);
+    throw new Error('Error updating calendar event');
+  }
+};
+
+module.exports = { getCalendarEvents, createCalendarEvent, updateCalendarEvent };
