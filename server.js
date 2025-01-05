@@ -8,8 +8,10 @@ const authRoutes = require('./src/routes/authRoutes'); // Import auth routes
 const teamRoutes = require('./src/routes/teamRoutes');
 const notificationRoutes = require('./src/routes/notificationRoutes');
 const eventRoutes = require('./src/routes/eventRoutes');
+const googleAuthRoutes = require('./src/routes/googleAuthRoutes');
 
-dotenv.config(); // Load environment variables from .env file
+dotenv.config(); // Make sure this is the very first line
+
 
 // Create an Express app
 const app = express();
@@ -40,6 +42,7 @@ app.use('/api/auth', authRoutes); // Use the authentication routes
 app.use('/api/teams', teamRoutes); // Use the teams routes
 app.use('/api/notifications', notificationRoutes); // Use the notif routes
 app.use('/api/events', eventRoutes); // Use the notif routes
+app.use('/api/google', googleAuthRoutes);// Google OAuth Routes
 
 // Test Route
 app.get('/', (req, res) => {
