@@ -3,6 +3,7 @@
 # dependencies
 node_modules/
 .env
+clientID_OAuth2.json
 
 # Expo
 .expo/
