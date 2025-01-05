@@ -22,11 +22,13 @@ const oauthMiddleware = async (req, res, next) => {
   oauth2Client.setCredentials({ access_token, refresh_token });
 
   try {
-    // Check if the access token is still valid
-    await oauth2Client.getAccessToken();
+    // Check if the access token is still valid by requesting a new one
+    const tokenInfo = await oauth2Client.getTokenInfo(access_token);
 
-    // If the token is expired, try to refresh it
-    if (oauth2Client.isTokenExpiring()) {
+    // If the access token is expired, try to refresh it
+    if (tokenInfo.expiry_date <= Date.now()) {
+      console.log('Access token expired, refreshing...');
+
       const { tokens } = await oauth2Client.refreshAccessToken();
       oauth2Client.setCredentials(tokens); // Update with new tokens
     }
