@@ -67,4 +67,24 @@ const updateCalendarEvent = async (oauth2Client, eventId, updatedEventData) => {
   }
 };
 
-module.exports = { getCalendarEvents, createCalendarEvent, updateCalendarEvent };
+/**
+ * Delete an event on the user's Google Calendar.
+ * @param {Object} oauth2Client - The authenticated OAuth2 client.
+ * @param {String} eventId - The event ID to delete.
+ * @returns {Promise<Object>} - Response after deleting the event.
+ */
+const deleteCalendarEvent = async (oauth2Client, eventId) => {
+  try {
+    const response = await calendar.events.delete({
+      auth: oauth2Client,
+      calendarId: 'primary',
+      eventId,
+    });
+    return response.data; // Return the response after deletion
+  } catch (error) {
+    console.error('Error deleting calendar event:', error);
+    throw new Error('Error deleting calendar event');
+  }
+};
+
+module.exports = { getCalendarEvents, createCalendarEvent, updateCalendarEvent, deleteCalendarEvent };
