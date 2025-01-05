@@ -1,47 +1,70 @@
-const { google } = require('googleapis');
+const { getCalendarEvents, createCalendarEvent, updateCalendarEvent } = require('../services/googleCalendarService');
 
-// Fetch calendar events
-exports.getCalendarEvents = async (oauth2Client) => {
+/**
+ * Handle the request to fetch calendar events.
+ */
+exports.getCalendarEvents = async (req, res) => {
   try {
-    const events = await google.calendar({ version: 'v3', auth: oauth2Client }).events.list({
-      calendarId: 'primary',
-      timeMin: new Date().toISOString(),
-      maxResults: 10,
-      singleEvents: true,
-      orderBy: 'startTime',
-    });
-    return events.data.items;
+    const events = await getCalendarEvents(req.oauth2Client);
+    res.json(events);
   } catch (error) {
-    console.error('Error fetching events:', error);
-    throw new Error('Error fetching events');
+    res.status(500).json({ error: 'Error fetching calendar events', details: error.message });
   }
 };
 
-// Create a new calendar event
-exports.createCalendarEvent = async (oauth2Client, eventData) => {
+/**
+ * Handle the request to create a new calendar event.
+ */
+exports.createCalendarEvent = async (req, res) => {
+  const { summary, location, description, startTime, endTime, timeZone } = req.body;
+
+  const eventData = {
+    summary,
+    location,
+    description,
+    start: {
+      dateTime: startTime,
+      timeZone: timeZone || 'UTC',
+    },
+    end: {
+      dateTime: endTime,
+      timeZone: timeZone || 'UTC',
+    },
+  };
+
   try {
-    const event = {
-      summary: eventData.summary,
-      location: eventData.location,
-      description: eventData.description,
-      start: {
-        dateTime: eventData.startTime,
-        timeZone: eventData.timeZone || 'UTC', 
-      },
-      end: {
-        dateTime: eventData.endTime,
-        timeZone: eventData.timeZone || 'UTC',
-      },
-    };
-
-    const createdEvent = await google.calendar({ version: 'v3', auth: oauth2Client }).events.insert({
-      calendarId: 'primary',
-      resource: event,
-    });
-
-    return createdEvent.data;
+    const createdEvent = await createCalendarEvent(req.oauth2Client, eventData);
+    res.json(createdEvent);
   } catch (error) {
-    console.error('Error creating event:', error);
-    throw new Error('Error creating event');
+    res.status(500).json({ error: 'Error creating calendar event', details: error.message });
+  }
+};
+
+/**
+ * Handle the request to update a calendar event.
+ */
+exports.updateCalendarEvent = async (req, res) => {
+  const { eventId } = req.params;
+  const { summary, location, description, startTime, endTime, timeZone } = req.body;
+
+  const updatedEventData = {
+    summary,
+    location,
+    description,
+    start: {
+      dateTime: startTime,
+      timeZone: timeZone || 'UTC',
+    },
+    end: {
+      dateTime: endTime,
+      timeZone: timeZone || 'UTC',
+    },
+  };
+
+  try {
+    const updatedEvent = await updateCalendarEvent(req.oauth2Client, eventId, updatedEventData);
+    res.json(updatedEvent);
+  } catch (error) {
+    res.status(500).json({ error: 'Error updating calendar event', details: error.message });
   }
 };
