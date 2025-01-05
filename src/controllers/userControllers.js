@@ -1,27 +1,27 @@
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 
-// Create a new user
-exports.createUser = async (req, res) => {
-  const { name, email, password, role } = req.body;
+// // Create a new user
+// exports.createUser = async (req, res) => {
+//   const { name, email, password, role } = req.body;
 
-  try {
-    // Hash the password before saving
-    const hashedPassword = await bcrypt.hash(password, 10);
+//   try {
+//     // Hash the password before saving
+//     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = new User({
-      name,
-      email,
-      password: hashedPassword,
-      role
-    });
+//     const newUser = new User({
+//       name,
+//       email,
+//       password: hashedPassword,
+//       role
+//     });
 
-    await newUser.save();
-    res.status(201).json({ message: 'User created successfully!' });
-  } catch (err) {
-    res.status(500).json({ message: 'Error creating user', error: err });
-  }
-};
+//     await newUser.save();
+//     res.status(201).json({ message: 'User created successfully!' });
+//   } catch (err) {
+//     res.status(500).json({ message: 'Error creating user', error: err });
+//   }
+// };
 
 // Get all users
 exports.getAllUsers = async (req, res) => {
