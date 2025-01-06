@@ -6,7 +6,11 @@ const eventSchema = new mongoose.Schema(
       type: String,
       required: true
     },
-    date: {
+    startTime: {
+      type: Date,
+      required: true
+    },
+    endTime: {
       type: Date,
       required: true
     },
@@ -20,7 +24,18 @@ const eventSchema = new mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
       }
-    ]
+    ],
+    teamCalendar: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'TeamCalendar',
+      required: true
+    },
+    location: {
+      type: String,  
+    },
+    description: {
+      type: String,  
+    },
   },
   { timestamps: true }
 );

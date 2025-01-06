@@ -1,4 +1,3 @@
-// /middlewares/oauthMiddleware.js
 const { google } = require('googleapis');
 const { OAuth2 } = require('simple-oauth2');
 const { google: googleConfig, apple: appleConfig } = require('../config/oauthConfig');
