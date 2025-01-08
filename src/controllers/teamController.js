@@ -1,7 +1,5 @@
 const Team = require('../models/Team');
-const User = require('../models/User');
 
-// Créer une nouvelle équipe
 exports.createTeam = async (req, res) => {
   const { name } = req.body;
 
@@ -11,23 +9,34 @@ exports.createTeam = async (req, res) => {
       return res.status(400).json({ message: 'Team already exists' });
     }
 
-    // Create a new team, add the user as the first member with "admin" role
-    const newTeam = new Team({ 
-      name, 
-      admin: req.user.id,  // L'utilisateur connecté devient l'administrateur
-      members: [{ 
-        user: req.user.id, 
-        role: 'admin'  // Le créateur devient l'administrateur de l'équipe
-      }]
+    // Create the team
+    const newTeam = new Team({
+      name,
+      admin: req.user.id,
+      members: [
+        {
+          user: req.user.id,
+          role: 'admin'
+        }
+      ]
     });
 
     await newTeam.save();
 
-    res.status(201).json({ message: 'Team created successfully', team: newTeam });
+    // Create a team calendar for the new team
+    const newTeamCalendar = new TeamCalendar({
+      team: newTeam._id,
+      createdBy: req.user.id
+    });
+
+    await newTeamCalendar.save();
+
+    res.status(201).json({ message: 'Team and calendar created successfully', team: newTeam, teamCalendar: newTeamCalendar });
   } catch (error) {
-    res.status(500).json({ message: 'Error creating team', error });
+    res.status(500).json({ message: 'Error creating team and calendar', error });
   }
 };
+
 
 
 // Ajouter un membre à une équipe

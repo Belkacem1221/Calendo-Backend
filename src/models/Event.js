@@ -25,16 +25,11 @@ const eventSchema = new mongoose.Schema(
         ref: 'User'
       }
     ],
-    teamCalendar: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'TeamCalendar',
-      required: true
-    },
     location: {
-      type: String,  
+      type: String,
     },
     description: {
-      type: String,  
+      type: String,
     },
   },
   { timestamps: true }
