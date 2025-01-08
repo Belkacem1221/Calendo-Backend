@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const Event = require('../models/Event');
 const TeamCalendar = require('../models/TeamCalendar');
 const User = require('../models/User');
+const { notifyClients } = require('../socket/socket'); 
 
 exports.createEvent = async (req, res) => {
   const { title, startTime, endTime, participants, teamId } = req.body;
@@ -46,6 +47,9 @@ exports.createEvent = async (req, res) => {
     // Commit the transaction
     await session.commitTransaction();
     session.endSession();
+
+    // Notify clients about the new event
+    notifyClients(event);
 
     res.status(201).json({ message: 'Event created and added to team calendar', event });
   } catch (error) {
