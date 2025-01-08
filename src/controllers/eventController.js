@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Event = require('../models/Event');
 const User = require('../models/User');
-const TeamCalendar = require('../models/teamCalendar'); 
+const TeamCalendar = require('../models/TeamCalendar'); 
 const { notifyClients } = require('../socket/socket');
 
 exports.createEvent = async (req, res) => {

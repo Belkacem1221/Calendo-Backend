@@ -1,69 +1,68 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const cors = require('cors'); // Cross-Origin Resource Sharing for API access
+const cors = require('cors');
 const dotenv = require('dotenv');
-const bodyParser = require('body-parser'); // For parsing request bodies
-const userRoutes = require('./src/routes/userRoutes'); // Import user routes
-const authRoutes = require('./src/routes/authRoutes'); // Import auth routes
+const bodyParser = require('body-parser');
+const userRoutes = require('./src/routes/userRoutes');
+const authRoutes = require('./src/routes/authRoutes');
 const teamRoutes = require('./src/routes/teamRoutes');
 const notificationRoutes = require('./src/routes/notificationRoutes');
 const eventRoutes = require('./src/routes/eventRoutes');
 const googleAuthRoutes = require('./src/routes/googleAuthRoutes');
-const googleCalendarRoutes = require('./src/routes/googleCalendarRoutes'); // Import Google Calendar routes
-const appleCalendarRoutes = require('./src/routes/appleCalendarRoutes')
-dotenv.config(); // Make sure this is the very first line
-
+const googleCalendarRoutes = require('./src/routes/googleCalendarRoutes');
+const appleCalendarRoutes = require('./src/routes/appleCalendarRoutes');
+const teamCalendarRoutes = require('./src/routes/teamCalendarRoutes'); // Team calendar routes
+dotenv.config(); // Load environment variables
 
 // Create an Express app
 const app = express();
 
 // Middleware
-app.use(cors()); // Enable CORS for all routes
-app.use(bodyParser.json()); // Parse JSON request bodies
+app.use(cors()); // Enable CORS
+app.use(bodyParser.json()); // Parse incoming JSON requests
 
 // Database connection (MongoDB Atlas)
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI, {
-      dbName: 'Calendodb',
-    }); // Connect to MongoDB
+    await mongoose.connect(process.env.MONGO_URI, { dbName: 'Calendodb' });
     console.log('MongoDB connected successfully');
   } catch (error) {
     console.error('MongoDB connection error:', error);
-    process.exit(1); // Exit the process with failure
+    process.exit(1); // Exit the process if DB connection fails
   }
 };
 
-// Connect to the database
+// Connect to MongoDB
 connectDB();
 
 // Routes
-app.use('/api/users', userRoutes); // Use the user-related routes
-app.use('/api/auth', authRoutes); // Use the authentication routes
-app.use('/api/teams', teamRoutes); // Use the teams routes
-app.use('/api/notifications', notificationRoutes); // Use the notif routes
-app.use('/api/events', eventRoutes); // Use the notif routes
-app.use('/api/google', googleAuthRoutes);// Google OAuth Routes
+app.use('/api/users', userRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/teams', teamRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/events', eventRoutes); // Event routes for handling event creation and updates
+app.use('/api/google', googleAuthRoutes); // Google OAuth routes
 app.use('/api/google/calendar', googleCalendarRoutes);
 app.use('/api/apple/calendar', appleCalendarRoutes);
+app.use('/api/teamCalendar', teamCalendarRoutes); // Team calendar routes
 
-// Test Route
+// Test route for checking server status
 app.get('/', (req, res) => {
   res.send('Server is running!');
 });
 
-// Catch-all for undefined routes
+// Catch-all route for undefined routes
 app.use((req, res) => {
   res.status(404).json({ message: 'Route not found' });
 });
 
-// Error handling middleware
+// Error handling middleware for general errors
 app.use((err, req, res, next) => {
   console.error(err.stack); // Log the error
   res.status(500).json({ message: 'Internal Server Error' });
 });
 
-// Set up the server to listen on a specific port
+// Set up server to listen on a specific port
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

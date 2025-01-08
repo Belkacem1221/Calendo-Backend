@@ -1,5 +1,5 @@
 const cron = require('node-cron');
-const TeamCalendar = require('../models/TeamCalendar');
+const TeamCalendar = require('../models/teamCalendar');
 const Event = require('../models/Event');
 
 // Cron job to merge the team calendar every hour (or any other interval)
