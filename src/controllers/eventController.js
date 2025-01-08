@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 const Event = require('../models/Event');
-const TeamCalendar = require('../models/TeamCalendar');
 const User = require('../models/User');
-const { notifyClients } = require('../socket/socket'); 
+const TeamCalendar = require('../models/teamCalendar'); 
+const { notifyClients } = require('../socket/socket');
 
 exports.createEvent = async (req, res) => {
   const { title, startTime, endTime, participants, teamId } = req.body;
@@ -10,6 +10,11 @@ exports.createEvent = async (req, res) => {
   // Validation for missing fields
   if (!startTime || !endTime || !teamId) {
     return res.status(400).json({ message: 'startTime, endTime, and teamId are required.' });
+  }
+
+  // Ensure startTime and endTime are valid Date objects
+  if (isNaN(new Date(startTime)) || isNaN(new Date(endTime))) {
+    return res.status(400).json({ message: 'Invalid startTime or endTime format' });
   }
 
   try {
@@ -22,6 +27,26 @@ exports.createEvent = async (req, res) => {
     const session = await mongoose.startSession();
     session.startTransaction();
 
+    // Check for any conflicts in the team calendar (e.g., overlapping events)
+    const teamCalendar = await TeamCalendar.findOne({ teamId });
+    if (!teamCalendar) {
+      // If no team calendar exists, create a new one
+      const newTeamCalendar = new TeamCalendar({ teamId, events: [] });
+      await newTeamCalendar.save({ session });
+    }
+
+    // Check for event time conflicts with existing events in the team calendar
+    const conflictingEvent = teamCalendar.events.find(eventId => {
+      const event = Event.findById(eventId);
+      return (new Date(startTime) < event.endTime && new Date(endTime) > event.startTime);
+    });
+
+    if (conflictingEvent) {
+      await session.abortTransaction();
+      return res.status(400).json({ message: 'There is a conflict with an existing event' });
+    }
+
+    // Create the event
     const event = new Event({
       title,
       startTime,
@@ -30,15 +55,8 @@ exports.createEvent = async (req, res) => {
       participants: [req.user.id, ...participants], // Add the creator as a participant
     });
 
-    // Save event
+    // Save the event
     await event.save({ session });
-
-    // Find the team calendar
-    const teamCalendar = await TeamCalendar.findOne({ teamId });
-    if (!teamCalendar) {
-      await session.abortTransaction();
-      return res.status(400).json({ message: 'Team calendar not found' });
-    }
 
     // Add the event to the team calendar
     teamCalendar.events.push(event._id);
@@ -57,7 +75,6 @@ exports.createEvent = async (req, res) => {
     res.status(500).json({ message: 'Error creating event', error });
   }
 };
-
 
 
 // Get all events for a user
