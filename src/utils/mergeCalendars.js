@@ -1,10 +1,5 @@
-const moment = require('moment');
+const moment = require('moment-timezone');
 
-/**
- * Merge multiple team calendars into one.
- * @param {Array} teamEvents - Array of team member events.
- * @returns {Object} - Merged calendar with free/occupied slots.
- */
 const mergeTeamCalendars = (teamEvents) => {
   const allEvents = [];
 
@@ -13,8 +8,8 @@ const mergeTeamCalendars = (teamEvents) => {
     events.forEach((event) => {
       allEvents.push({
         memberId,
-        startTime: moment(event.start.dateTime),
-        endTime: moment(event.end.dateTime),
+        startTime: moment(event.start.dateTime).tz('UTC'),  // Handle time zone
+        endTime: moment(event.end.dateTime).tz('UTC'),
       });
     });
   });
@@ -42,5 +37,3 @@ const mergeTeamCalendars = (teamEvents) => {
 
   return mergedCalendar;
 };
-
-module.exports = mergeTeamCalendars;
