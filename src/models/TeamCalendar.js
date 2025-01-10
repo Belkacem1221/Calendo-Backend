@@ -1,13 +1,22 @@
 const mongoose = require('mongoose');
 
 const teamCalendarSchema = new mongoose.Schema({
-  team: { type: mongoose.Schema.Types.ObjectId, ref: 'Team', required: true },
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  events: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Event' }],
+  team: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'Team',
+    required: true 
+  },
+  createdBy: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'User', 
+    required: true 
+  },
+  events: [{ 
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Event' 
+  }],
 });
 
-// Create a model using the schema
-const TeamCalendar = mongoose.model('TeamCalendar', teamCalendarSchema);
 
 // Export the model
-module.exports = TeamCalendar;
+module.exports = mongoose.model('TeamCalendar', teamCalendarSchema);;
