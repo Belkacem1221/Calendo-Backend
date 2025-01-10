@@ -1,5 +1,6 @@
 const Team = require('../models/Team');
-const TeamCalendar = require('../models/TeamCalendar');
+const TeamCalendar = require('../models/teamCalendar');
+
 
 exports.createTeam = async (req, res) => {
   const { name } = req.body;

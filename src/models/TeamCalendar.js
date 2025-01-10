@@ -19,4 +19,4 @@ const teamCalendarSchema = new mongoose.Schema({
 
 
 // Export the model
-module.exports = mongoose.model('TeamCalendar', teamCalendarSchema);;
+module.exports = mongoose.model('teamCalendar', teamCalendarSchema);;
