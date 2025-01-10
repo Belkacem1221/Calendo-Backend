@@ -1,7 +1,7 @@
 const Event = require('../models/Event');
 const User = require('../models/User');
 const moment = require('moment');
-const TeamCalendar = require('../models/teamCalendar');
+const TeamCalendar = require('../models/TeamCalendar'); 
 
 // Merge events from multiple team members into one calendar
 exports.mergeTeamCalendars = async (req, res) => {
