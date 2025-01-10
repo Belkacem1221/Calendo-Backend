@@ -6,8 +6,8 @@ const teamCalendarSchema = new mongoose.Schema({
   events: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Event' }],
 });
 
-// Check if the model is already compiled
-const TeamCalendar =
-  mongoose.models.TeamCalendar || mongoose.model('TeamCalendar', teamCalendarSchema);
+// Create a model using the schema
+const TeamCalendar = mongoose.model('TeamCalendar', teamCalendarSchema);
 
+// Export the model
 module.exports = TeamCalendar;
