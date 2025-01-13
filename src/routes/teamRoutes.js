@@ -12,10 +12,10 @@ router.delete('/delete/:teamId', authenticateToken, (req, res, next) => {
 // Créer une équipe (accessible à tous les utilisateurs authentifiés)
 router.post('/create', authenticateToken, createTeam);
 
-// Ajouter un membre à une équipe (seulement l'administrateur de l'équipe peut le faire)
+// Ajouter un membre à une équipe 
 router.post('/add-member', authenticateToken, addMember);
 
-// Retirer un membre d'une équipe (seulement l'administrateur de l'équipe peut le faire)
+// Retirer un membre d'une équipe (seulement l'administrateur et moderateur de l'équipe peut le faire)
 router.delete('/remove-member', authenticateToken, (req, res, next) => {
     rbacMiddleware(req.params.teamId, ['admin', 'moderator'])(req, res, next);
   }, removeMember);
