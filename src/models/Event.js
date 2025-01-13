@@ -31,6 +31,16 @@ const eventSchema = new mongoose.Schema(
     description: {
       type: String,
     },
+    options: [{
+      option: {
+        type: String, // e.g., "Chinese", "French", "Mexican"
+        required: true,
+      },
+      votes: {
+        type: Number,
+        default: 0,
+      },
+    }],
   },
   { timestamps: true }
 );
