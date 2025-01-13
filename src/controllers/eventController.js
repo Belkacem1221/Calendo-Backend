@@ -148,3 +148,33 @@ exports.deleteEvent = async (req, res) => {
     res.status(500).json({ message: 'Error deleting event', error });
   }
 };
+
+exports.addVoteToEvent = async (req, res) => {
+  const { eventId } = req.params;
+  const { option } = req.body;  // Option the user is voting for
+
+  try {
+    // Find the event by ID
+    const event = await Event.findById(eventId);
+    if (!event) {
+      return res.status(404).json({ message: 'Event not found' });
+    }
+
+    // Check if the option exists in the event options
+    const selectedOption = event.options.find(o => o.option === option);
+    if (!selectedOption) {
+      return res.status(400).json({ message: 'Invalid option' });
+    }
+
+    // Increment the vote count
+    selectedOption.votes += 1;
+
+    // Save the updated event
+    await event.save();
+
+    res.status(200).json({ message: 'Vote added successfully', event });
+  } catch (error) {
+    console.error('Error adding vote:', error);
+    res.status(500).json({ message: 'Error adding vote', error });
+  }
+};
