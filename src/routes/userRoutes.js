@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();  // Initialize the router
 const UserController = require('../controllers/userControllers');
-const authenticateToken = require('../middlewares/authMiddleware');
+const { authenticateToken} = require('../middlewares/authMiddleware');
 const authenticateAdmin = require('../middlewares/authenticateAdmin');
 
 //Admin routes
