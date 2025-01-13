@@ -178,3 +178,19 @@ exports.addVoteToEvent = async (req, res) => {
     res.status(500).json({ message: 'Error adding vote', error });
   }
 };
+
+exports.getVotesForEvent = async (req, res) => {
+  const { eventId } = req.params;
+
+  try {
+    const event = await Event.findById(eventId);
+    if (!event) {
+      return res.status(404).json({ message: 'Event not found' });
+    }
+
+    res.status(200).json({ options: event.options });
+  } catch (error) {
+    console.error('Error fetching votes:', error);
+    res.status(500).json({ message: 'Error fetching votes', error });
+  }
+};
