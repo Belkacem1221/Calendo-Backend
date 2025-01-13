@@ -184,3 +184,27 @@ exports.leaveTeam = async (req, res) => {
     res.status(500).json({ message: 'Error leaving team', error });
   }
 };
+
+exports.deleteTeam = async (req, res) => {
+  const { teamId } = req.params;
+
+  try {
+    const team = await Team.findById(teamId);
+    if (!team) {
+      return res.status(404).json({ message: 'Team not found' });
+    }
+
+    // Check if the requester is the admin of the team
+    if (team.admin.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Only the admin can delete the team' });
+    }
+
+    // Delete the team and associated calendar
+    await Team.findByIdAndDelete(teamId);
+    await TeamCalendar.findOneAndDelete({ team: teamId });
+
+    res.status(200).json({ message: 'Team deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting team', error });
+  }
+};

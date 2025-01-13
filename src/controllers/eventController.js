@@ -1,80 +1,57 @@
+const { notifyClients } = require('../socket/socket');
 const mongoose = require('mongoose');
 const Event = require('../models/Event');
 const User = require('../models/User');
 const TeamCalendar = require('../models/teamCalendar');
-const { notifyClients } = require('../socket/socket');
 
 exports.createEvent = async (req, res) => {
-  const { title, startTime, endTime, participants, teamId } = req.body;
-
-  // Validation for missing fields
-  if (!startTime || !endTime || !teamId) {
-    return res.status(400).json({ message: 'startTime, endTime, and teamId are required.' });
-  }
-
-  // Ensure startTime and endTime are valid Date objects
-  if (isNaN(new Date(startTime)) || isNaN(new Date(endTime))) {
-    return res.status(400).json({ message: 'Invalid startTime or endTime format' });
-  }
-
   try {
-    const validParticipants = await User.find({ _id: { $in: participants } });
-    if (validParticipants.length !== participants.length) {
-      return res.status(400).json({ message: 'Invalid participant IDs' });
-    }
+    const { title, startTime, endTime, participants, location, description, teamId, createdBy } = req.body;
 
-    // Start a transaction
-    const session = await mongoose.startSession();
-    session.startTransaction();
-
-    // Check for any conflicts in the team calendar (e.g., overlapping events)
-    const teamCalendar = await TeamCalendar.findOne({ teamId });
-    if (!teamCalendar) {
-      // If no team calendar exists, create a new one
-      const newTeamCalendar = new TeamCalendar({ teamId, events: [] });
-      await newTeamCalendar.save({ session });
-    }
-
-    // Check for event time conflicts with existing events in the team calendar
-    const conflictingEvent = teamCalendar.events.find(eventId => {
-      const event = Event.findById(eventId);
-      return (new Date(startTime) < event.endTime && new Date(endTime) > event.startTime);
-    });
-
-    if (conflictingEvent) {
-      await session.abortTransaction();
-      return res.status(400).json({ message: 'There is a conflict with an existing event' });
+    // Ensure the necessary fields are provided
+    if (!teamId || !createdBy) {
+      return res.status(400).json({ message: 'teamId and createdBy are required' });
     }
 
     // Create the event
-    const event = new Event({
+    const newEvent = new Event({
       title,
       startTime,
       endTime,
-      createdBy: req.user.id, // The user creating the event
-      participants: [req.user.id, ...participants], // Add the creator as a participant
+      participants,
+      location,
+      description,
+      createdBy, // Adding createdBy field here
     });
 
     // Save the event
-    await event.save({ session });
+    await newEvent.save();
 
-    // Add the event to the team calendar
-    teamCalendar.events.push(event._id);
-    await teamCalendar.save({ session });
+    // Find or create the team calendar
+    let teamCalendar = await TeamCalendar.findOne({ team: teamId });
+    if (teamCalendar) {
+      teamCalendar.events.push(newEvent._id);
+    } else {
+      teamCalendar = new TeamCalendar({
+        team: teamId,
+        createdBy,
+        events: [newEvent._id],
+      });
+    }
 
-    // Commit the transaction
-    await session.commitTransaction();
-    session.endSession();
+    // Save or update the team calendar
+    await teamCalendar.save();
 
-    // Notify clients about the new event
-    notifyClients(event);
-
-    res.status(201).json({ message: 'Event created and added to team calendar', event });
-  } catch (error) {
-    console.error('Error creating event:', error);
-    res.status(500).json({ message: 'Error creating event', error });
+    return res.status(201).json({
+      message: 'Event successfully added',
+      event: newEvent,
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Error creating event' });
   }
 };
+
 
 
 // Get all events for a user
