@@ -31,13 +31,16 @@ const eventSchema = new mongoose.Schema(
     description: {
       type: String,
     },
-    votes: [{
-      option: String,  // Option name, e.g., 'Chinese', 'Mexican'
-      voters: [{
-        type: mongoose.Schema.Types.ObjectId, // The user who voted
-        ref: 'User'
-      }]
-    }]
+    options: [{
+      option: {
+        type: String, 
+        required: true,
+      },
+      votes: {
+        type: Number,
+        default: 0,
+      },
+    }],
   },
   { timestamps: true }
 );
