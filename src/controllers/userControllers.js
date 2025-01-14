@@ -4,11 +4,15 @@ const Team = require('../models/Team');
 
 // Function to get all teams that a user is part of
 exports.getUserTeams = async (req, res) => {
-  try {
-    const { id } = req.params;
+  const { email } = req.params;
 
-    // Find teams where the user is part of the 'members' array
-    const teams = await Team.find({ 'members.user': id })
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const teams = await Team.find({ 'members.user': user._id })
       .populate('admin', 'name email')  // Populate the admin field to show admin info
       .populate('members.user', 'name email');  // Populate the members field to show user details
 
@@ -22,6 +26,7 @@ exports.getUserTeams = async (req, res) => {
     return res.status(500).json({ message: 'Server error', error: err });
   }
 };
+
 
 // Get all users
 exports.getAllUsers = async (req, res) => {

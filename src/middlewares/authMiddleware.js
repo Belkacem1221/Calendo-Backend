@@ -19,18 +19,21 @@ exports.authenticateToken = (req, res, next) => {
   }
 };
 
-exports.rbacMiddleware = (teamId, requiredRole) => async (req, res, next) => {
+exports.rbacMiddleware = (teamName, requiredRole) => async (req, res, next) => {
   try {
-    const team = await Team.findById(teamId);
+    // Find the team by name (case-insensitive)
+    const team = await Team.findOne({ name: { $regex: new RegExp(`^${teamName}$`, 'i') } });
     if (!team) {
       return res.status(404).json({ message: 'Team not found' });
     }
 
+    // Check if the user is a member of the team
     const member = team.members.find(m => m.user.toString() === req.user.id);
     if (!member) {
       return res.status(403).json({ message: 'User is not a member of this team' });
     }
 
+    // Check the user's role in the team
     const userRole = member.role;
     const rolesHierarchy = ['member', 'moderator', 'admin'];
 
